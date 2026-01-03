@@ -1,0 +1,166 @@
+
+:root {
+    --bm-purple: #8c52ff;
+    --bm-purple-light: #a677ff;
+    --bm-purple-lighter: #f4efff;
+    --bm-purple-dark: #7041d9;
+}  
+
+/* ===================*/
+/* === Back Button=== */
+/* ===================*/
+    .bm-back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: transparent;
+        border: none;
+        color: #2d3748;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        margin-bottom: 25px;
+        padding: 0;
+    }
+
+    .bm-back-btn:hover {
+        color: var(--bm-purple);
+        text-decoration: none;
+    }
+
+    .bm-back-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        font-size: 1.1rem;
+    }
+
+    .bm-back-btn:hover .bm-back-icon {
+        background: var(--bm-purple-lighter);
+        color: var(--bm-purple);
+        box-shadow: 0 3px 10px rgba(140, 82, 255, 0.15);
+    }
+
+/* ====================*/
+/* === Create Button===*/
+/* ====================*/  
+    .btn-create {
+        background: var(--bm-purple);
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.813rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        text-decoration: none;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(140, 82, 255, 0.3);
+    }
+
+    .btn-create:hover {
+        background: var(--bm-purple-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(140, 82, 255, 0.35);
+        color: white;
+    }
+
+/* ====================*/
+/* === Edit Button===*/
+/* ====================*/  
+    .btn-edit {
+        padding: 7px 20px;
+        border-radius: 50px;
+        border: 2px solid #b8bbbdff;
+        background: white;
+        color: #535c6aff;
+        font-size: 0.813rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-edit:hover {
+        background: #f9fafb;
+        border-color: var(--bm-purple);
+        color: var(--bm-purple);
+    }
+
+/* ===============================================*/
+/* === Base Button (connect and view profile)=== */
+/* ==============================================*/
+.bm-btn {
+    border-radius: 50px;   
+    border-style: solid;    
+    font-weight: 600;
+    padding: 0.3rem 1rem;
+    font-size: 0.85rem;
+    line-height: 1.2;
+    border-width: 2px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 150px;
+}
+
+/* ================== */
+/* === Connect Button === */
+/* ================== */
+.bm-btn-connect {
+    color: #8c52ff;
+    border-color: #8c52ff;
+    background-color: white;
+}
+
+.bm-btn-connect:hover {
+    background-color: #f4e6ff;
+}
+
+/* Connected state */
+.bm-btn-connected {
+    color: white;
+    background-color: #8c52ff;
+    border-color: #8c52ff;
+    cursor: default;
+}
+
+/* Pending state / Cancel request */
+.bm-btn-cancel-req {
+    color: #dc3545;  /* red */
+    border-color: #dc3545;
+    background-color: white;
+}
+
+.bm-btn-cancel-req:hover {
+    background-color: #f8d7da;
+}
+
+/* ================== */
+/* === View Profile Button === */
+/* ================== */
+.bm-btn-profile {
+    color: #6c757d; /* gray */
+    border-color: #6c757d;
+    background-color: white;
+}
+
+.bm-btn-profile:hover {
+    background-color: #e9ecef;
+}
+
+
+
+
