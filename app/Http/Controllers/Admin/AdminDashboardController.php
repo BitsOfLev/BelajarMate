@@ -18,8 +18,18 @@ class AdminDashboardController extends Controller
         // Urgent Actions Count
         $urgent = [
             'pending_blogs' => Blog::where('status', Blog::STATUS_PENDING)->count(),
-            'pending_comments' => BlogComment::where('status', BlogComment::STATUS_PENDING)->count(),
-            'pending_reports' => BlogReport::where('status', BlogReport::STATUS_PENDING)->count(),
+            'pending_comments' => BlogComment::where('status', BlogComment::STATUS_PENDING)
+                ->whereHas('blog') // Only comments with existing blogs
+                ->count(),
+            'pending_reports' => BlogReport::where('status', BlogReport::STATUS_PENDING)
+                ->where(function($q) {
+                    // Only reports where content still exists
+                    $q->whereHas('blog')  // Blog reports with existing blog
+                      ->orWhereHas('comment', function($commentQuery) {
+                          $commentQuery->whereHas('blog'); // Comment reports with existing blog
+                      });
+                })
+                ->count(),
             'pending_universities' => University::where('approval_status', 'pending')->count(),
             'pending_courses' => Course::where('approval_status', 'pending')->count(),
         ];
@@ -40,22 +50,60 @@ class AdminDashboardController extends Controller
             'total_blogs' => Blog::count(),
             'approved_blogs' => Blog::where('status', Blog::STATUS_APPROVED)->count(),
             'rejected_blogs' => Blog::where('status', Blog::STATUS_REJECTED)->count(),
-            'total_comments' => BlogComment::count(),
-            'approved_comments' => BlogComment::where('status', BlogComment::STATUS_APPROVED)->count(),
+            'total_comments' => BlogComment::whereHas('blog')->count(), // Only comments with existing blogs
+            'approved_comments' => BlogComment::where('status', BlogComment::STATUS_APPROVED)
+                ->whereHas('blog')
+                ->count(),
         ];
 
         // Reports Statistics
         $reports = [
-            'total' => BlogReport::count(),
-            'pending' => BlogReport::where('status', BlogReport::STATUS_PENDING)->count(),
-            'reviewed' => BlogReport::where('status', BlogReport::STATUS_REVIEWED)->count(),
-            'dismissed' => BlogReport::where('status', BlogReport::STATUS_DISMISSED)->count(),
+            'total' => BlogReport::where(function($q) {
+                    $q->whereHas('blog')
+                      ->orWhereHas('comment', function($commentQuery) {
+                          $commentQuery->whereHas('blog');
+                      });
+                })->count(),
+            'pending' => BlogReport::where('status', BlogReport::STATUS_PENDING)
+                ->where(function($q) {
+                    $q->whereHas('blog')
+                      ->orWhereHas('comment', function($commentQuery) {
+                          $commentQuery->whereHas('blog');
+                      });
+                })->count(),
+            'reviewed' => BlogReport::where('status', BlogReport::STATUS_REVIEWED)
+                ->where(function($q) {
+                    $q->whereHas('blog')
+                      ->orWhereHas('comment', function($commentQuery) {
+                          $commentQuery->whereHas('blog');
+                      });
+                })->count(),
+            'dismissed' => BlogReport::where('status', BlogReport::STATUS_DISMISSED)
+                ->where(function($q) {
+                    $q->whereHas('blog')
+                      ->orWhereHas('comment', function($commentQuery) {
+                          $commentQuery->whereHas('blog');
+                      });
+                })->count(),
         ];
 
         // Recent Activity (Last 5 items)
         $recentBlogs = Blog::with('user')->latest('created_at')->take(5)->get();
-        $recentComments = BlogComment::with('user', 'blog')->latest('created_at')->take(5)->get();
-        $recentReports = BlogReport::with('user')->latest('created_at')->take(5)->get();
+        $recentComments = BlogComment::with('user', 'blog')
+            ->whereHas('blog')
+            ->latest('created_at')
+            ->take(5)
+            ->get();
+        $recentReports = BlogReport::with('user', 'blog', 'comment')
+            ->where(function($q) {
+                $q->whereHas('blog')
+                  ->orWhereHas('comment', function($commentQuery) {
+                      $commentQuery->whereHas('blog');
+                  });
+            })
+            ->latest('created_at')
+            ->take(5)
+            ->get();
 
         // Data Management Stats
         $dataStats = [

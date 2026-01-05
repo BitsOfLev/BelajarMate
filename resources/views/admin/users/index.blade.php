@@ -5,13 +5,6 @@
     <!-- Header -->
     <div class="flex justify-between items-center">
         <h2 class="text-2xl font-bold">Manage Users</h2>
-
-        <div class="flex gap-3">
-            <!-- Export button -->
-            <button class="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
-                Export Users
-            </button>
-        </div>
     </div>
 
     <!-- Search & Role Filter -->
@@ -47,8 +40,22 @@
                     <td class="px-4 py-2 border">{{ $user->id }}</td>
                     <td class="px-4 py-2 border">
                         <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
-                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                                @php
+                                    $profileImage = $user->userInfo?->profile_image ?? null;
+                                @endphp
+                                
+                                @if($profileImage && $profileImage !== 'default.jpg')
+                                    <img 
+                                        src="{{ asset('storage/' . $profileImage) }}"
+                                        alt="{{ $user->name }}"
+                                        class="w-full h-full object-cover"
+                                    >
+                                @else
+                                    <span class="text-primary font-semibold text-sm">
+                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                                    </span>
+                                @endif
                             </div>
                             <span>{{ $user->name }}</span>
                         </div>

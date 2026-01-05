@@ -29,8 +29,22 @@
                 </div>
                 <div class="p-6">
                     <div class="flex items-center gap-4 mb-6">
-                        <div class="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-3xl">
-                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                        <div class="w-20 h-20 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center text-primary font-bold text-3xl">
+                            @php
+                                    $profileImage = $user->userInfo?->profile_image ?? null;
+                                @endphp
+                                
+                                @if($profileImage && $profileImage !== 'default.jpg')
+                                    <img 
+                                        src="{{ asset('storage/' . $profileImage) }}"
+                                        alt="{{ $user->name }}"
+                                        class="w-full h-full object-cover"
+                                    >
+                                @else
+                                    <span class="text-primary font-semibold text-sm">
+                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                                    </span>
+                                @endif
                         </div>
                         <div>
                             <h4 class="text-xl font-bold text-gray-900">{{ $user->name }}</h4>

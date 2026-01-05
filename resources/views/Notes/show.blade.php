@@ -326,26 +326,6 @@
         display: flex;
         gap: 8px;
     }
-
-    .btn-edit {
-        background: var(--bm-purple-lighter);
-        color: var(--bm-purple);
-    }
-
-    .btn-edit:hover {
-        background: var(--bm-purple);
-        color: white;
-    }
-
-    .btn-delete {
-        background: #fef2f2;
-        color: #dc2626;
-    }
-
-    .btn-delete:hover {
-        background: #dc2626;
-        color: white;
-    }
 </style>
 
 <div class="container py-4">

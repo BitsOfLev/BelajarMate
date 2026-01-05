@@ -184,7 +184,7 @@
                             @if($report->blog->blogImg === 'blog-default.jpg')
                                 <img src="{{ asset('img/blog-default.jpg') }}" alt="{{ $report->blog->blogTitle }}" class="blog-hero-image">
                             @else
-                                <img src="{{ asset('storage/'.$blog->blogImg) }}" alt="{{ $report->blog->blogTitle }}" class="blog-hero-image">
+                                <img src="{{ asset('storage/'.$report->blog->blogImg) }}" alt="{{ $report->blog->blogTitle }}" class="blog-hero-image">
                             @endif
                         @endif
 

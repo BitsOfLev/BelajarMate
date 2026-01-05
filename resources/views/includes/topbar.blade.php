@@ -367,7 +367,12 @@
 
     // Update notification badge count
     function updateBadgeCount() {
-        fetch('/notifications/unread-count')
+        fetch('/notifications/unread-count', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            }
+        })
             .then(response => response.json())
             .then(data => {
                 const badge = document.querySelector('.topbar__notification-badge');
@@ -387,6 +392,9 @@
                         badge.remove();
                     }
                 }
+            })
+            .catch(error => {
+                console.error('Error fetching notification count:', error);
             });
     }
 

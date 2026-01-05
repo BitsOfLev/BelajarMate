@@ -24,6 +24,16 @@ class BlogComment extends Model
     const STATUS_PENDING = 'pending';
     const STATUS_REJECTED = 'rejected';
 
+    protected static function boot()
+    {
+        parent::boot();
+        
+        // When a comment is deleted, also delete its reports
+        static::deleting(function ($comment) {
+            \App\Models\BlogReport::where('commentID', $comment->commentID)->delete();
+        });
+    }
+
     // Relationships
     public function blog()
     {

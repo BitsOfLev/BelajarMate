@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class NotificationController extends Controller
@@ -47,11 +48,16 @@ class NotificationController extends Controller
     /**
      * Get unread notification count (for AJAX polling)
      */
-    public function unreadCount(): JsonResponse
+    public function unreadCount(): JsonResponse|RedirectResponse
     {
-        $count = auth()->user()->unreadNotifications->count();
+        // Check if it's an AJAX/JSON request
+        if (request()->expectsJson() || request()->ajax()) {
+            $count = auth()->user()->unreadNotifications->count();
+            return response()->json(['count' => $count]);
+        }
         
-        return response()->json(['count' => $count]);
+        // If accessed directly via browser, redirect to notifications page
+        return redirect()->route('notifications.index');
     }
 
     /**

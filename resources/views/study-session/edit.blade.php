@@ -550,7 +550,7 @@
                             type="time" 
                             name="sessionTime" 
                             class="form-input" 
-                            value="{{ old('sessionTime', $session->sessionTime) }}"
+                            value="{{ old('sessionTime', $session->sessionTime?->format('H:i')) }}"
                             required
                         >
                         @error('sessionTime')
@@ -568,7 +568,7 @@
                         type="time" 
                         name="endTime" 
                         class="form-input" 
-                        value="{{ old('endTime', $session->endTime) }}"
+                        value="{{ old('endTime', $session->endTime?->format('H:i')) }}"
                     >
                     <div class="form-help">Leave empty if duration is flexible</div>
                     @error('endTime')

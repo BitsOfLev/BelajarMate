@@ -26,10 +26,20 @@ class BlogModerationController extends Controller
     {
         $stats = [
             'pending_blogs' => Blog::where('status', Blog::STATUS_PENDING)->count(),
-            'pending_comments' => BlogComment::where('status', BlogComment::STATUS_PENDING)->count(),
-            'pending_reports' => BlogReport::where('status', BlogReport::STATUS_PENDING)->count(),
+            'pending_comments' => BlogComment::where('status', BlogComment::STATUS_PENDING)
+                ->whereHas('blog') // Only comments with existing blogs
+                ->count(),
+            'pending_reports' => BlogReport::where('status', BlogReport::STATUS_PENDING)
+                ->where(function($q) {
+                    // Only reports where content still exists
+                    $q->whereHas('blog')  // Blog reports with existing blog
+                    ->orWhereHas('comment', function($commentQuery) {
+                        $commentQuery->whereHas('blog'); // Comment reports with existing blog
+                    });
+                })
+                ->count(),
             'total_blogs' => Blog::count(),
-            'total_comments' => BlogComment::count(),
+            'total_comments' => BlogComment::whereHas('blog')->count(), // Only comments with existing blogs
         ];
 
         return view('admin.blog-moderation.index', compact('stats'));
@@ -63,6 +73,7 @@ class BlogModerationController extends Controller
     {
         $comments = BlogComment::with(['user', 'blog'])
             ->where('status', BlogComment::STATUS_PENDING)
+            ->whereHas('blog') 
             ->latest('created_at')
             ->paginate(20);
 
@@ -75,6 +86,13 @@ class BlogModerationController extends Controller
     public function reports(Request $request)
     {
         $query = BlogReport::with(['user', 'blog', 'comment'])
+            ->where(function($q) {
+                // Only show reports where content still exists
+                $q->whereHas('blog')  // Blog reports with existing blog
+                ->orWhereHas('comment', function($commentQuery) {
+                    $commentQuery->whereHas('blog'); // Comment reports with existing blog
+                });
+            })
             ->latest('created_at');
 
         // Filter by status
@@ -84,9 +102,9 @@ class BlogModerationController extends Controller
 
         // Filter by type
         if ($request->type === 'blog') {
-            $query->whereNotNull('blogID');
+            $query->whereNotNull('blogID')->whereHas('blog');
         } elseif ($request->type === 'comment') {
-            $query->whereNotNull('commentID');
+            $query->whereNotNull('commentID')->whereHas('comment.blog');
         }
 
         $reports = $query->paginate(20);
@@ -109,6 +127,16 @@ class BlogModerationController extends Controller
     public function showComment(BlogComment $comment)
     {
         $comment->load(['user', 'blog']);
+        
+        // Check if blog still exists
+        if (!$comment->blog) {
+            // Auto-delete the orphaned comment
+            $comment->delete();
+            
+            return redirect()->route('admin.blog-moderation.pending-comments')
+                ->with('error', 'The blog associated with this comment has been deleted. Comment removed.');
+        }
+        
         return view('admin.blog-moderation.show-comment', compact('comment'));
     }
 
@@ -118,6 +146,22 @@ class BlogModerationController extends Controller
     public function showReport(BlogReport $report)
     {
         $report->load(['user', 'blog.user', 'comment.user', 'comment.blog']);
+        
+        // Check if reported blog exists 
+        if ($report->blogID && !$report->blog) {
+            return redirect()->route('admin.blog-moderation.reports')
+                ->with('error', 'The reported blog has been deleted.');
+        }
+        
+        // Check if reported comment's blog exists 
+        if ($report->commentID && $report->comment && !$report->comment->blog) {
+            // Auto-delete the orphaned comment
+            $report->comment->delete();
+            
+            return redirect()->route('admin.blog-moderation.reports')
+                ->with('error', 'The blog associated with this comment has been deleted. Comment removed.');
+        }
+        
         return view('admin.blog-moderation.show-report', compact('report'));
     }
 
@@ -401,7 +445,7 @@ class BlogModerationController extends Controller
             return back()->with('success', 'Content deleted. Both reporter and author notified.');
         }
 
-        // Warn user (we'll implement violation tracking later)
+        // Warn user 
         $report->update([
             'status' => BlogReport::STATUS_REVIEWED,
             'admin_notes' => 'Warning issued: ' . $request->admin_notes,
@@ -409,8 +453,6 @@ class BlogModerationController extends Controller
 
         // Notify reporter
         $report->user->notify(new ReportActionNotification($report, 'user_warned', $request->admin_notes));
-
-        // TODO: Implement user violation tracking
 
         return back()->with('success', 'User warned. Reporter notified.');
     }

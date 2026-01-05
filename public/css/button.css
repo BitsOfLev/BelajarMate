@@ -81,9 +81,9 @@
     .btn-edit {
         padding: 7px 20px;
         border-radius: 50px;
-        border: 2px solid #b8bbbdff;
+        border: 2px solid var(--bm-purple);
         background: white;
-        color: #535c6aff;
+        color: var(--bm-purple-dark);
         font-size: 0.813rem;
         font-weight: 600;
         text-decoration: none;
@@ -97,6 +97,30 @@
         background: #f9fafb;
         border-color: var(--bm-purple);
         color: var(--bm-purple);
+    }
+
+/* ====================*/
+/* === Delete Button===*/
+/* ====================*/  
+    .btn-delete {
+        padding: 7px 20px;
+        border-radius: 50px;
+        border: 2px solid rgb(199, 45, 53);
+        background: white;
+        color: rgb(235, 17, 17);
+        font-size: 0.813rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-delete:hover {
+        background: #f9fafb;
+        border-color: rgb(199, 45, 53);
+        color: rgb(235, 17, 17);
     }
 
 /* ===============================================*/
