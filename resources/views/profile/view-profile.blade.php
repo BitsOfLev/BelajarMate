@@ -168,7 +168,11 @@
             <button type="submit" class="btn btn-primary w-100 rounded-pill py-2">Update Password</button>
 
             @if (session('status') === 'password-updated')
-                <p class="text-success small mt-2 text-center">Password updated successfully.</p>
+                <div class="alert alert-success alert-dismissible fade show rounded-3 mt-3 mb-0" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <strong>Success!</strong> Your password has been updated.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             @endif
         </form>
     </div>
