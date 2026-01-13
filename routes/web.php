@@ -195,6 +195,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/info/edit', [UserInfoController::class, 'edit'])->name('profile.info.edit');
         Route::patch('/info/update', [UserInfoController::class, 'update'])->name('profile.info.update');
+        Route::post('/schedule/upload', [UserInfoController::class, 'uploadSchedule'])->name('profile.schedule.upload');
+        Route::delete('/schedule/delete', [UserInfoController::class, 'deleteSchedule'])->name('profile.schedule.delete');
+
+        Route::get('/analytics', [App\Http\Controllers\AnalyticsController::class, 'index'])->name('analytics');
     });
 
     // -------------------------------

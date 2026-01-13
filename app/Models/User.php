@@ -126,6 +126,22 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get all study sessions created by this user
+     */
+    public function studySessions()
+    {
+        return $this->hasMany(StudySession::class, 'userID');
+    }
+
+    /**
+     * Get recommendations for this user with scores
+     */
+    public function recommendations()
+    {
+        return $this->hasMany(Recommendation::class, 'userID');
+    }
+
+    /**
      * Get all reports filed by this user
      */
     public function reports()

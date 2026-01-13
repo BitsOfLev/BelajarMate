@@ -133,5 +133,64 @@ class UserInfoController extends Controller
                 ->with('status', "All information updated successfully except: {$failedList}.");
         }
     }
+
+    /**
+     * Upload study schedule
+     */
+    public function uploadSchedule(Request $request)
+    {
+        $request->validate([
+            'study_schedule' => 'required|image|mimes:jpeg,png,jpg,pdf|max:2048'
+        ]);
+
+        try {
+            $user = Auth::user();
+            $userInfo = $user->userInfo ?? new UserInfo(['userID' => $user->id]);
+
+            // Delete old schedule if exists
+            if ($userInfo->study_schedule && \Storage::disk('public')->exists($userInfo->study_schedule)) {
+                \Storage::disk('public')->delete($userInfo->study_schedule);
+            }
+
+            // Store new schedule
+            $path = $request->file('study_schedule')->store('schedules', 'public');
+            $userInfo->study_schedule = $path;
+            $userInfo->save();
+
+            return redirect()->back()->with('success', 'Study schedule uploaded successfully!');
+        } catch (\Exception $e) {
+            \Log::error('Failed to upload schedule: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to upload schedule. Please try again.');
+        }
+    }
+
+    /**
+     * Delete study schedule
+     */
+    public function deleteSchedule()
+    {
+        try {
+            $user = Auth::user();
+            $userInfo = $user->userInfo;
+
+            if ($userInfo && $userInfo->study_schedule) {
+                // Delete file from storage
+                if (\Storage::disk('public')->exists($userInfo->study_schedule)) {
+                    \Storage::disk('public')->delete($userInfo->study_schedule);
+                }
+
+                // Remove from database
+                $userInfo->study_schedule = null;
+                $userInfo->save();
+
+                return redirect()->back()->with('success', 'Study schedule deleted successfully!');
+            }
+
+            return redirect()->back()->with('error', 'No schedule found to delete.');
+        } catch (\Exception $e) {
+            \Log::error('Failed to delete schedule: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to delete schedule. Please try again.');
+        }
+    }
 }
 

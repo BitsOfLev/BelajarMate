@@ -13,7 +13,7 @@
             <i class='bx bx-search'></i>
         </div>
         
-        {{-- Notification Bell with Dropdown --}}
+        <!-- Notification Bell with Dropdown -->
         <div class="topbar__notification-dropdown" title="Notifications">
             <a href="#" class="topbar__notification-trigger" id="notificationBell">
                 <i class='bx bxs-bell topbar__icon'></i>
@@ -24,9 +24,9 @@
                 @endif
             </a>
 
-            {{-- Notification Dropdown Menu --}}
+            <!-- Dropdown Menu -->
             <div class="topbar__notification-menu" id="notificationMenu">
-                {{-- Header --}}
+               <!-- Header -->
                 <div class="notification-header">
                     <h6 class="notification-title">Notifications</h6>
                     @if(Auth::user()->unreadNotifications->count() > 0)
@@ -36,7 +36,7 @@
                     @endif
                 </div>
 
-                {{-- Notification List --}}
+                <!-- Notification List -->
                 <div class="notification-list">
                     @forelse(Auth::user()->notifications()->latest()->take(5)->get() as $notification)
                         @php
@@ -54,7 +54,7 @@
                                 <i class="{{ $data['icon'] ?? 'bx-bell' }} {{ $data['color'] ?? '' }}"></i>
                             </div>
                             <div class="notification-content">
-                                {{-- Show title if exists (old notifications), otherwise skip --}}
+                                 <!-- Show title if exists (old notifications), otherwise skip  -->
                                 @if(isset($data['title']))
                                     <p class="notification-item-title">{{ $data['title'] }}</p>
                                 @endif
@@ -73,7 +73,7 @@
                     @endforelse
                 </div>
 
-                {{-- Show All Button --}}
+                <!-- Show All Button -->
                 <div class="notification-footer">
                     <a href="{{ route('notifications.index') }}" class="notification-show-all">
                         Show all
@@ -82,7 +82,7 @@
             </div>
         </div>
 
-        {{-- Messages --}}
+        <!-- Messages -->
         <a href="{{ route('messages.index') }}" title="Message" style="position: relative;">
             <i class='bx bxs-conversation topbar__icon'></i>
             @php
@@ -102,13 +102,21 @@
                 <i class='bx bx-chevron-down topbar__profile-icon'></i>
             </span>
             <div class="dropdown__menu">
-                <a href="{{ route('profile.view') }}">View Profile</a>
+                <a href="{{ route('profile.view') }}">
+                    <i class='bx bx-user'></i> View Profile
+                </a>
+                <a href="{{ route('study-partner.social-profile.show', Auth::user()->id) }}">
+                    <i class='bx bx-id-card'></i> My Social Profile
+                </a>
+                <a href="{{ route('analytics') }}">
+                    <i class='bx bx-chart'></i> Analytics
+                </a>
             </div>
         </div>
     </div>
 </header>
 
-{{-- Notification Styles --}}
+<!-- Notification Styles -->
 <style>
     /* Notification Dropdown Container */
     .topbar__notification-dropdown {
@@ -326,7 +334,7 @@
     }
 </style>
 
-{{-- Notification Scripts --}}
+<!-- Notification Scripts -->
 <script>
     // Toggle notification dropdown
     document.getElementById('notificationBell').addEventListener('click', function(e) {
@@ -354,7 +362,6 @@
                 'Content-Type': 'application/json',
             }
         }).then(() => {
-            // Update UI - remove unread styling
             const item = event.currentTarget;
             item.classList.remove('unread');
             const dot = item.querySelector('.unread-dot');
@@ -380,7 +387,7 @@
                     if (badge) {
                         badge.textContent = data.count > 9 ? '9+' : data.count;
                     } else {
-                        // Create badge if it doesn't exist
+                        // Create badge if not exist
                         const trigger = document.querySelector('.topbar__notification-trigger');
                         const newBadge = document.createElement('span');
                         newBadge.className = 'topbar__notification-badge';

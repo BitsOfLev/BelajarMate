@@ -66,20 +66,20 @@
                 @csrf
             </form>
 
-            <li class="sidebar__menu-item">
+            <!-- <li class="sidebar__menu-item">
                 <a href="#" class="sidebar__menu-link">
                     <i class='bx bx-cog sidebar__menu-icon'></i>
                     <span class="sidebar__menu-text">Settings</span>
                 </a>
-            </li>
-            <li class="sidebar__mode">
-                <div class="sidebar__mode-icons">
+            </li> -->
+            <li class="sidebar__mode"> 
+                <!-- <div class="sidebar__mode-icons">
                     <i class='bx bx-moon'></i>
                 </div>
                 <span class="sidebar__menu-text">Dark Mode</span>
                 <div class="sidebar__toggle-switch">
                 <span class="switch"></span>
-                </div>
+                </div> -->
             </li>
         </div>
     </nav>

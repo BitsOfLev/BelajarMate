@@ -24,6 +24,7 @@ class UserInfo extends Model
         'preferred_time',
         'preferred_mode',
         'profile_image',
+        'study_schedule', // NEW
     ];
 
     //Relationship to User
@@ -89,6 +90,5 @@ class UserInfo extends Model
     {
         return $value ? explode(',', $value) : [];
     }
-
 }
 
