@@ -90,6 +90,11 @@ class Blog extends Model
         return $this->hasMany(BlogReport::class, 'blogID');
     }
 
+    public function getRouteKeyName()
+    {
+        return 'blogID';
+    }
+
     // Check if blog is flagged/pending
     public function getIsFlaggedAttribute()
     {

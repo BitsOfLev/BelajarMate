@@ -154,4 +154,40 @@ class DashboardController extends Controller
             'latestBlogs'
         ));
     }
+
+    public function search(Request $request)
+    {
+        $query = $request->query('q');
+
+        // If empty search, just return empty results
+        if (!$query) {
+            return view('search.results', [
+                'query' => $query,
+                'blogs' => collect(),
+                'notes' => collect(),
+                'study_planner' => collect(),
+            ]);
+        }
+
+        $blogs = Blog::approved()
+            ->where(function ($q) use ($query) {
+                $q->where('blogTitle', 'LIKE', "%{$query}%")
+                ->orWhere('blogContent', 'LIKE', "%{$query}%");
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $notes = Note::forUser(Auth::id())
+            ->search($query)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $study_planner = StudyPlanner::where('studyPlanName', 'LIKE', "%{$query}%")
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+
+        return view('search.results', compact('query', 'blogs', 'notes', 'study_planner'));
+    }
+
 }

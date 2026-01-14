@@ -179,7 +179,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // User pages
     Route::get('/home', [DashboardController::class, 'index'])->name('home');
-    Route::view('/pomodoro', 'pomodoro')->name('pomodoro'); //
+    Route::get('/search', [DashboardController::class, 'search'])->name('search');
 
     // User logout
     Route::post('/logout', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])->name('logout');
@@ -352,6 +352,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{note}/edit', [NoteController::class, 'edit'])->name('edit');
         Route::put('/{note}', [NoteController::class, 'update'])->name('update');
         Route::delete('/{note}', [NoteController::class, 'destroy'])->name('destroy');
+        Route::post('/{note}/share', [NoteController::class, 'share'])->name('share');
 
         // Note Resources (file uploads and links)
         Route::prefix('{note}/resources')->name('resources.')->group(function () {

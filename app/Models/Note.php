@@ -127,4 +127,21 @@ class Note extends Model
     {
         return $this->resources()->where('resource_type', 'link')->get();
     }
+
+    //for sharing
+    public function canView(User $user)
+    {
+        // Owner can always view
+        if ($this->user_id === $user->id) {
+            return true;
+        }
+
+        // Check if user is a connected study partner
+        return $this->user->connectedPartners()->contains('id', $user->id);
+    }
+
+    public function isOwner(User $user)
+    {
+        return $this->user_id === $user->id;
+    }
 }

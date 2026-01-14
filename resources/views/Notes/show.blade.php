@@ -326,6 +326,177 @@
         display: flex;
         gap: 8px;
     }
+
+    .btn-share {
+    /* padding: 10px 18px; */
+    background: white;
+    color: black;
+    border: none;
+    /* border-radius: 10px; */
+    font-size: 0.875rem;
+    /* font-weight: 600; */
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    }
+
+    /* .btn-share:hover {
+        background: #7c42ef;
+        transform: translateY(-1px);
+        color: white;
+    } */
+
+    .btn-share i {
+        font-size: 1rem;
+    }
+
+    /* Share Modal */
+    .share-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .share-modal-content {
+        background: white;
+        border-radius: 16px;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .share-modal-header {
+        padding: 24px;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .share-modal-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .share-modal-title i {
+        color: #8c52ff;
+    }
+
+    .close-modal {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        background: #f3f4f6;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .close-modal:hover {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .share-modal-body {
+        padding: 24px;
+    }
+
+    .share-description {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #374151;
+        font-size: 0.875rem;
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        font-size: 0.938rem;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .form-select:focus {
+        outline: none;
+        border-color: #8c52ff;
+        box-shadow: 0 0 0 3px rgba(140, 82, 255, 0.1);
+    }
+
+    .share-modal-footer {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 24px;
+    }
+
+    .btn-cancel,
+    .btn-submit {
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+        font-size: 0.938rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+    }
+
+    .btn-submit {
+        background: #8c52ff;
+        color: white;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+        background: #7c42ef;
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
 </style>
 
 <div class="container py-4">
@@ -385,20 +556,25 @@
                 </div>
 
                 <!-- Action Buttons -->
+                @if($isOwner)
                 <div class="action-buttons">
                     <a href="{{ route('notes.edit', $note->id) }}" class="btn-edit">
                         <span>Edit</span>
                     </a>
                     <form action="{{ route('notes.destroy', $note->id) }}" method="POST" 
-                          onsubmit="return confirm('Delete this note and all its resources? This action cannot be undone.');" 
-                          style="margin: 0;">
+                        onsubmit="return confirm('Delete this note and all its resources? This action cannot be undone.');" 
+                        style="margin: 0; display: inline;">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn-delete">
                             <span>Delete</span>
                         </button>
                     </form>
+                    <button type="button" class="btn-share" onclick="openShareModal()" title="Share note">
+                        <i class="bi bi-share-fill"></i>
+                    </button>
                 </div>
+                @endif
             </div>
 
             <!-- Description -->
@@ -641,6 +817,53 @@
                 </div>
             @endif
 
+            <!-- Share Modal -->
+            <div id="shareModal" class="share-modal" style="display: none;">
+                <div class="share-modal-content">
+                    <div class="share-modal-header">
+                        <h3 class="share-modal-title">
+                            <i class="bi bi-share"></i>
+                            Share Note
+                        </h3>
+                        <button type="button" class="close-modal" onclick="closeShareModal()">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+
+                    <div class="share-modal-body">
+                        <p class="share-description">Send this note to your study partners via message</p>
+                        
+                        <form action="{{ route('notes.share', $note->id) }}" method="POST">
+                            @csrf
+                            
+                            <label class="form-label">Select Study Partner</label>
+                            <select name="recipient_id" class="form-select" required>
+                                <option value="">Choose a partner...</option>
+                                @foreach($studyPartners as $partner)
+                                    <option value="{{ $partner->id }}">{{ $partner->name }}</option>
+                                @endforeach
+                            </select>
+
+                            @if($studyPartners->isEmpty())
+                                <div class="alert alert-warning mt-3">
+                                    <i class="bi bi-info-circle"></i>
+                                    You don't have any connected study partners yet.
+                                </div>
+                            @endif
+
+                            <div class="share-modal-footer">
+                                <button type="button" class="btn-cancel" onclick="closeShareModal()">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="btn-submit" {{ $studyPartners->isEmpty() ? 'disabled' : '' }}>
+                                    <i class="bi bi-send"></i>
+                                    Send
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -663,6 +886,21 @@
         // Add active class to clicked tab
         event.target.classList.add('active');
     }
+
+    function openShareModal() {
+    document.getElementById('shareModal').style.display = 'flex';
+    }
+
+    function closeShareModal() {
+        document.getElementById('shareModal').style.display = 'none';
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('shareModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeShareModal();
+        }
+    });
 </script>
 
 @endsection

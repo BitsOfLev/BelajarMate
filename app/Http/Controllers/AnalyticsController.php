@@ -21,13 +21,17 @@ class AnalyticsController extends Controller
 
         // Study Activity
         $studyActivity = [
-            'sessions_this_week' => $user->studySessions()
-                ->whereBetween('sessionDate', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            'sessions_completed' => $user->studySessions()
+                ->where('status', 'completed')
                 ->count(),
-            'upcoming_sessions' => $user->studySessions()
+            'sessions_planned' => $user->studySessions()
+                ->where('status', 'planned')
                 ->where('sessionDate', '>=', Carbon::now())
                 ->count(),
-            'weekly_chart_data' => $this->getWeeklyChartData($user),
+            'sessions_cancelled' => $user->studySessions()
+                ->where('status', 'cancelled')
+                ->count(),
+            'completion_rate' => $this->getCompletionRate($user),
         ];
 
         // Blog Performance
@@ -47,6 +51,25 @@ class AnalyticsController extends Controller
         ];
 
         return view('analytics.index', compact('stats', 'studyActivity', 'blogPerformance'));
+    }
+
+    /**
+     * Calculate completion rate (completed vs sessions that should be completed)
+     */
+    private function getCompletionRate($user)
+    {
+        $completed = $user->studySessions()->where('status', 'completed')->count();
+        $cancelled = $user->studySessions()->where('status', 'cancelled')->count();
+        $total = $user->studySessions()->count();
+        
+        // Eligible sessions = total - cancelled (sessions that COULD be completed)
+        $eligible = $total - $cancelled;
+        
+        if ($eligible === 0) {
+            return 0;
+        }
+        
+        return round(($completed / $eligible) * 100);
     }
 
     /**
@@ -76,28 +99,6 @@ class AnalyticsController extends Controller
         $totalEngagement = $this->getTotalEngagement($user);
         
         return round($totalEngagement / $totalPosts, 1);
-    }
-
-    /**
-     * Get weekly study sessions data for chart
-     */
-    private function getWeeklyChartData($user)
-    {
-        $data = [];
-        
-        for ($i = 6; $i >= 0; $i--) {
-            $date = Carbon::now()->subDays($i);
-            $count = $user->studySessions()
-                ->whereDate('sessionDate', $date)
-                ->count();
-            
-            $data[] = [
-                'date' => $date->format('D'), // Mon, Tue, Wed
-                'count' => $count,
-            ];
-        }
-        
-        return $data;
     }
 
     /**

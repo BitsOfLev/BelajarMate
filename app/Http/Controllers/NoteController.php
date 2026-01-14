@@ -101,25 +101,29 @@ class NoteController extends Controller
     /**
      * Display a single note with all its resources.
      * 
-     * @param Note $note - Laravel automatically finds the note by ID (Route Model Binding)
+     * @param Note $note - Laravel automatically finds the note by ID 
      */
     public function show(Note $note)
     {
-        // Authorization: Check if this note belongs to the current user
-        if ($note->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
+        $user = auth()->user();
+
+        if (!$note->canView($user)) {
+            abort(403, 'Unauthorized access to this note.');
         }
-        
-        // Load the note's resources (files and links)
-        // This is called "eager loading" - prevents N+1 query problem
-        $note->load('resources');
-        
-        // Separate resources by type for easier display
-        $files = $note->resources()->files()->get();
-        $links = $note->resources()->links()->get();
-        
-        return view('notes.show', compact('note', 'files', 'links'));
+
+        // Determine if current user is the owner
+        $isOwner = $note->isOwner($user);
+
+        // Get resources
+        $files = $note->getFileResources();
+        $links = $note->getLinkResources();
+
+        // Only show study partners if owner (for sharing modal)
+        $studyPartners = $isOwner ? $user->connectedPartners() : collect();
+
+        return view('notes.show', compact('note', 'files', 'links', 'studyPartners', 'isOwner'));
     }
+
 
     /**
      * Show the form for editing a note.
@@ -188,5 +192,58 @@ class NoteController extends Controller
         return redirect()
             ->route('notes.index')
             ->with('success', 'Note deleted successfully!');
+    }
+
+    public function share(Request $request, Note $note)
+    {
+        // Authorization check
+        if ($note->user_id !== auth()->id()) {
+            abort(403, 'You can only share your own notes.');
+        }
+
+        $request->validate([
+            'recipient_id' => 'required|exists:users,id',
+        ]);
+
+        $recipientId = $request->recipient_id;
+
+        // Verify recipient is a connected study partner
+        $studyPartners = auth()->user()->connectedPartners();
+        if (!$studyPartners->contains('id', $recipientId)) {
+            return back()->with('error', 'You can only share with connected study partners.');
+        }
+
+        // Check if conversation exists
+        $conversation = \App\Models\Conversation::where(function ($query) use ($recipientId) {
+            $query->where('user_one_id', auth()->id())->where('user_two_id', $recipientId);
+        })->orWhere(function ($query) use ($recipientId) {
+            $query->where('user_one_id', $recipientId)->where('user_two_id', auth()->id());
+        })->first();
+
+        // Create conversation if doesn't exist
+        if (!$conversation) {
+            $conversation = \App\Models\Conversation::create([
+                'user_one_id' => auth()->id(),
+                'user_two_id' => $recipientId,
+                'last_message_at' => now(),
+            ]);
+        }
+
+        // Create message with note link
+        $noteUrl = route('notes.show', $note->id);
+        $messageText = "📝 I shared a note with you: \"{$note->title}\"\n\nView it here: {$noteUrl}";
+
+        \App\Models\Message::create([
+            'conversation_id' => $conversation->id,
+            'sender_id' => auth()->id(),
+            'message' => $messageText,
+        ]);
+
+        // Update conversation's last message timestamp
+        $conversation->update([
+            'last_message_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Note shared successfully!');
     }
 }

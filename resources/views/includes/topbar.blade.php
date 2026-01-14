@@ -8,10 +8,19 @@
     </div>
 
     <div class="topbar__right">
-        <div class="topbar__search" title="search">
-            <input type="text" placeholder="Search...">
-            <i class='bx bx-search'></i>
-        </div>
+        <form action="{{ route('search') }}" method="GET" class="topbar__search" title="search">
+            <input
+                type="text"
+                name="q"
+                placeholder="Search..."
+                value="{{ request('q') }}"
+            >
+            <button type="submit" style="background: none; border: none; cursor: pointer;">
+                <i class='bx bx-search'></i>
+            </button>
+        </form>
+
+
         
         <!-- Notification Bell with Dropdown -->
         <div class="topbar__notification-dropdown" title="Notifications">

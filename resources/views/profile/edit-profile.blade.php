@@ -9,7 +9,7 @@
     .form-select:focus {
         border-color: #8c52ff;
         box-shadow: 0 0 0 0.2rem rgba(140, 82, 255, 0.15);
-    }
+    } 
 
     #success-alert {
         animation: fadeIn 0.3s ease-in;

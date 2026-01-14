@@ -11,7 +11,7 @@ class StudyPlanner extends Model
 
     protected $fillable = [
         'user_id',
-        'studyPlanName',
+        'studyPlanName', 
         'category_id', 
         'priority',
         'description',

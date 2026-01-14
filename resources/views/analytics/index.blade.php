@@ -313,29 +313,66 @@
         <div class="section-card">
             <div class="section-header">
                 <div class="section-icon">
-                    <i class="bi bi-calendar-week"></i>
+                    <i class="bi bi-calendar-check"></i>
                 </div>
-                <h2 class="section-title">Study Activity</h2>
+                <h2 class="section-title">Study Sessions</h2>
             </div>
 
-            <!-- Weekly Chart -->
-            <div class="chart-container">
-                <canvas id="weeklyChart" style="max-height: 200px;"></canvas>
+            <!-- Completion Rate Visual -->
+            <div style="margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span style="font-weight: 700; color: #4a5568; font-size: 0.875rem;">Completion Rate</span>
+                    <span style="font-weight: 700; color: var(--bm-purple); font-size: 1.25rem;">{{ $studyActivity['completion_rate'] }}%</span>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div style="width: 100%; height: 20px; background: #e5e7eb; border-radius: 10px; overflow: hidden;">
+                    <div style="width: {{ $studyActivity['completion_rate'] }}%; height: 100%; background: linear-gradient(90deg, var(--bm-purple) 0%, var(--bm-purple-light) 100%); transition: width 0.3s;"></div>
+                </div>
+                
+                @php
+                    $completed = $studyActivity['sessions_completed'];
+                    $cancelled = $studyActivity['sessions_cancelled'];
+                    $eligible = $stats['total_sessions'] - $cancelled;
+                @endphp
+                
+                <p style="font-size: 0.813rem; color: #718096; margin-top: 0.5rem; margin-bottom: 0;">
+                    {{ $completed }} completed out of {{ $eligible }} eligible sessions ({{ $cancelled }} cancelled)
+                </p>
             </div>
 
-            <!-- Stats -->
+            <!-- Session Breakdown -->
             <div class="stats-list">
                 <div class="stats-item">
-                    <span class="stats-item-label">Total Sessions</span>
+                    <span class="stats-item-label">
+                        <i class="bi bi-check-circle-fill" style="color: #10b981; margin-right: 0.5rem;"></i>
+                        Completed
+                    </span>
+                    <span class="stats-item-value">{{ $studyActivity['sessions_completed'] }}</span>
+                </div>
+                
+                <div class="stats-item">
+                    <span class="stats-item-label">
+                        <i class="bi bi-clock-fill" style="color: #3b82f6; margin-right: 0.5rem;"></i>
+                        Upcoming
+                    </span>
+                    <span class="stats-item-value">{{ $studyActivity['sessions_planned'] }}</span>
+                </div>
+                
+                <div class="stats-item">
+                    <span class="stats-item-label">
+                        <i class="bi bi-x-circle-fill" style="color: #ef4444; margin-right: 0.5rem;"></i>
+                        Cancelled
+                    </span>
+                    <span class="stats-item-value">{{ $studyActivity['sessions_cancelled'] }}</span>
+                </div>
+                
+                <div class="stats-item">
+                    <span class="stats-item-label">
+                        <i class="bi bi-list-check" style="color: #8b5cf6; margin-right: 0.5rem;"></i>
+                        Total Sessions
+                    </span>
                     <span class="stats-item-value">{{ $stats['total_sessions'] }}</span>
-                </div>
-                <div class="stats-item">
-                    <span class="stats-item-label">This Week</span>
-                    <span class="stats-item-value">{{ $studyActivity['sessions_this_week'] }}</span>
-                </div>
-                <div class="stats-item">
-                    <span class="stats-item-label">Upcoming Sessions</span>
-                    <span class="stats-item-value">{{ $studyActivity['upcoming_sessions'] }}</span>
                 </div>
             </div>
         </div>
@@ -399,59 +436,6 @@
     </div>
 </div>
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const ctx = document.getElementById('weeklyChart').getContext('2d');
-    const chartData = @json($studyActivity['weekly_chart_data']);
-    
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: chartData.map(d => d.date),
-            datasets: [{
-                label: 'Study Sessions',
-                data: chartData.map(d => d.count),
-                backgroundColor: 'rgba(140, 82, 255, 0.6)',
-                borderColor: 'rgba(140, 82, 255, 1)',
-                borderWidth: 2,
-                borderRadius: 8,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1,
-                        font: {
-                            size: 11
-                        }
-                    },
-                    grid: {
-                        color: '#f3f4f6'
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        font: {
-                            size: 11
-                        }
-                    }
-                }
-            }
-        }
-    });
-</script>
+
 
 @endsection
