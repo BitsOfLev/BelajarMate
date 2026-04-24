@@ -275,7 +275,7 @@
 
                 <div class="form-group">
                     <label class="form-label">
-                        Note Title <span class="required">*</span>
+                        Note Name <span class="required">*</span>
                     </label>
                     <input 
                         type="text" 
